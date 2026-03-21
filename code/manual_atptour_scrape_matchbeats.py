@@ -8,6 +8,20 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from db_connection import DatabaseConnection
 
+def get_tournament_name(driver):
+    body = driver.find_element(By.TAG_NAME, "body")
+    container = body.find_element(By.CLASS_NAME, "container")
+    wrapper = container.find_element(By.CLASS_NAME, "wrapper")
+    atp_layout = wrapper.find_element(By.CLASS_NAME, "atp_layout")
+    layout_container = atp_layout.find_element(By.CLASS_NAME, "atp_layout-container")
+    atp_match_stats = layout_container.find_element(By.CLASS_NAME, "atp_match-stats")
+    stats_score = atp_match_stats.find_element(By.CLASS_NAME, "stats-score")
+    tournamet = stats_score.find_element(By.CLASS_NAME, "tournament")
+    event_name = tournamet.find_element(By.CLASS_NAME, "event-name").text.strip()
+    event_location = tournamet.find_element(By.CLASS_NAME, "event-location").text.strip()
+
+    return event_name,event_location
+
 def get_player_names(driver):
     """Dohvaća imena igrača iz MatchBeats hijerarhije."""
     try:
@@ -117,6 +131,9 @@ def scrape_matchbeats():
     db = DatabaseConnection()
     conn = db.connect()
 
+    tournament_name,tournament_location = get_tournament_name(driver)
+     
+
     try:
         with conn.cursor() as cur:
             cur.execute(f"SET search_path TO {schema};")
@@ -150,7 +167,7 @@ def scrape_matchbeats():
                     duration = game_card.find_element(By.CLASS_NAME, "duration").text
 
                     print(f"    Gem {game_index}: {player_name} - {result_type} ({score1}-{score2}) - {duration}")
-                    set_games.append((match_id, match_name, set_index, game_index, player_name, result_type, int(score1), int(score2), duration, match_url))
+                    set_games.append((match_id, match_name, set_index, game_index, player_name, result_type, int(score1), int(score2), duration, match_url, tournament_name, tournament_location))
                 except Exception as e:
                     print(f"  Gem {game_index}: [Greška] {e}")
                     valid_match = False
@@ -167,8 +184,8 @@ def scrape_matchbeats():
             try:
                 with conn.cursor() as cur:
                     cur.executemany("""
-                        INSERT INTO match_scores(match_id, match_name, set_number, game_number, player_name, result_type, score1, score2, duration, match_url)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO match_scores(match_id, match_name, set_number, game_number, player_name, result_type, score1, score2, duration, match_url, tournament_name, tournament_location)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, all_games)
                 conn.commit()
                 print("\n✅ MATCH spremljen")
