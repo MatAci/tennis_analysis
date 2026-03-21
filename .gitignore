@@ -1,0 +1,39 @@
+# 🔹 Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🔹 Virtual environment
+venv/
+env/
+.venv/
+
+# 🔹 Environment varijable (VAŽNO)
+.env
+
+# 🔹 Baze (lokalne)
+*.db
+*.sqlite3
+
+# 🔹 Logovi
+*.log
+
+# 🔹 VS Code
+.vscode/
+
+# 🔹 OS fileovi
+.DS_Store
+Thumbs.db
+
+# 🔹 Jupyter (ako koristiš)
+.ipynb_checkpoints/
+
+# 🔹 Build / dist
+build/
+dist/
+*.egg-info/
+
+# 🔹 Selenium / scraping output (ako spremaš)
+downloads/
+tmp/
