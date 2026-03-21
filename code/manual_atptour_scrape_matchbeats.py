@@ -106,6 +106,9 @@ def scrape_matchbeats():
     wait.until(EC.presence_of_element_located((By.ID, "MatchBeats")))
     time.sleep(2)
 
+    # === DOHVAĆANJE URL-a ===
+    match_url = driver.current_url
+
     # === Konfiguracija i Baza ===
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -147,7 +150,7 @@ def scrape_matchbeats():
                     duration = game_card.find_element(By.CLASS_NAME, "duration").text
 
                     print(f"    Gem {game_index}: {player_name} - {result_type} ({score1}-{score2}) - {duration}")
-                    set_games.append((match_id, match_name, set_index, game_index, player_name, result_type, int(score1), int(score2), duration))
+                    set_games.append((match_id, match_name, set_index, game_index, player_name, result_type, int(score1), int(score2), duration, match_url))
                 except Exception as e:
                     print(f"  Gem {game_index}: [Greška] {e}")
                     valid_match = False
@@ -164,8 +167,8 @@ def scrape_matchbeats():
             try:
                 with conn.cursor() as cur:
                     cur.executemany("""
-                        INSERT INTO match_scores(match_id, match_name, set_number, game_number, player_name, result_type, score1, score2, duration)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO match_scores(match_id, match_name, set_number, game_number, player_name, result_type, score1, score2, duration, match_url)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, all_games)
                 conn.commit()
                 print("\n✅ MATCH spremljen")
