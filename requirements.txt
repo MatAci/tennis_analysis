@@ -1,9 +1,0 @@
-webdriver-manager
-selenium
-pandas
-requests-html
-pyppeteer
-lxml_html_clean
-nest_asyncio
-websockets==9.1
-psycopg2-binary
